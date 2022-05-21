@@ -21,15 +21,16 @@ import java.sql.SQLIntegrityConstraintViolationException;
 public class GlobalExceptionHandler {
 
     /**
-     * 异常处理
+     * SQL完整性约束违反异常处理
+     *
      * @param exception
      * @return com.itheima.reggie.common.R<java.lang.String>
      **/
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
-    public R<String> exceptionHandler(SQLIntegrityConstraintViolationException exception){
+    public R<String> exceptionHandler(SQLIntegrityConstraintViolationException exception) {
 
         log.error(exception.getMessage());
-        if (exception.getMessage().contains("Duplicate entry")){
+        if (exception.getMessage().contains("Duplicate entry")) {
             //如果msg是以下形式 Duplicate entry 'zhangsan' for key 'idx_username'
             //表示添加员工时，员工名重复
             String[] split = exception.getMessage().split(" ");
@@ -37,5 +38,17 @@ public class GlobalExceptionHandler {
             return R.error(msg);
         }
         return R.error("未知错误");
+    }
+
+    /**
+     * 业务异常处理
+     *
+     * @param exception
+     * @return com.itheima.reggie.common.R<java.lang.String>
+     **/
+    @ExceptionHandler(CustomException.class)
+    public R<String> customExceptionHandler(CustomException exception) {
+        log.error(exception.getMessage());
+        return R.error(exception.getMessage());
     }
 }

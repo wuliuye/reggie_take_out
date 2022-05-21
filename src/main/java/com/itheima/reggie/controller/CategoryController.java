@@ -55,4 +55,19 @@ public class CategoryController {
         categoryService.page(pageInfo, queryWrapper);
         return R.success(pageInfo);
     }
+
+
+    /**
+     * 根据分类id删除分类
+     *
+     * @param id
+     * @return com.itheima.reggie.common.R<java.lang.String>
+     **/
+    @DeleteMapping
+    public R<String> delete(@RequestParam("ids") Long id) {
+
+        //categoryService.removeById(id);
+        categoryService.remove(id);
+        return R.success("删除分类成功");
+    }
 }
