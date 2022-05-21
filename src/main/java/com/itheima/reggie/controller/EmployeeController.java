@@ -120,7 +120,7 @@ public class EmployeeController {
      * @return com.itheima.reggie.common.R<com.baomidou.mybatisplus.extension.plugins.pagination.Page>
      **/
     @GetMapping("/page")
-    public R<Page> page( int page,int pageSize, String name) {
+    public R<Page> page(int page, int pageSize, String name) {
 
         log.info("page={},pageSize={},name={}", page, pageSize, name);
         //分页构造器
@@ -133,5 +133,22 @@ public class EmployeeController {
         employeeService.page(pageInfo, queryWrapper);
 
         return R.success(pageInfo);
+    }
+
+    /**
+     * 修改员工信息
+     *
+     * @param employee
+     * @return com.itheima.reggie.common.R<java.lang.String>
+     **/
+    @PutMapping
+    public R<String> update(HttpServletRequest request,@RequestBody Employee employee) {
+        log.info("employee={}", employee);
+        Long empId = (Long) request.getSession().getAttribute("employee");
+        employee.setUpdateUser(empId);
+        employee.setUpdateTime(LocalDateTime.now());
+        employeeService.updateById(employee);
+
+        return R.success("员工信息更新成功");
     }
 }
