@@ -142,7 +142,7 @@ public class EmployeeController {
      * @return com.itheima.reggie.common.R<java.lang.String>
      **/
     @PutMapping
-    public R<String> update(HttpServletRequest request,@RequestBody Employee employee) {
+    public R<String> update(HttpServletRequest request, @RequestBody Employee employee) {
         log.info("employee={}", employee);
         Long empId = (Long) request.getSession().getAttribute("employee");
         employee.setUpdateUser(empId);
@@ -151,4 +151,22 @@ public class EmployeeController {
 
         return R.success("员工信息更新成功");
     }
+
+    /**
+     * 根据id查询员工信息
+     *
+     * @param id
+     * @return com.itheima.reggie.common.R<com.itheima.reggie.entity.Employee>
+     **/
+    @GetMapping("/{id}")
+    public R<Employee> getById(@PathVariable Long id) {
+
+        log.info("根据id查询员工信息。。。");
+        Employee employee = employeeService.getById(id);
+        if (employee != null) {
+            return R.success(employee);
+        }
+        return R.error("没有查询到员工信息");
+    }
+
 }
