@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
  * @author : wly
  * @version : 1.0
  * @date : 2022/5/20 21:12
- * @description:
+ * @description:员工服务
  */
 @Service
 public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> implements EmployeeService {
