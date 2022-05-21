@@ -27,6 +27,13 @@ public class EmployeeController {
     @Autowired
     private EmployeeService employeeService;
 
+    /**
+     * 员工登录
+     *
+     * @param request
+     * @param employee
+     * @return com.itheima.reggie.common.R<com.itheima.reggie.entity.Employee>
+     **/
     @PostMapping("/login")
     public R<Employee> login(HttpServletRequest request, @RequestBody Employee employee) {
 
@@ -52,9 +59,23 @@ public class EmployeeController {
         if (emp.getStatus() == 0) {
             return R.error("账号已禁用");
         }
-        //6.登录成功，将用户id放到session中并返回成功结果
-        request.getSession().setAttribute("employee",emp.getId());
+        //6.登录成功，将员工id放到session中并返回成功结果
+        request.getSession().setAttribute("employee", emp.getId());
         return R.success(emp);
 
+    }
+
+    /**
+     * 员工退出
+     *
+     * @param request
+     * @return com.itheima.reggie.common.R<java.lang.String>
+     **/
+    @PostMapping("/logout")
+    public R<String> logout(HttpServletRequest request) {
+
+        //清除session中保存的当前登录员工的id
+        request.getSession().removeAttribute("employee");
+        return R.success("退出成功");
     }
 }
