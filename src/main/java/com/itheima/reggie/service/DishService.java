@@ -1,6 +1,7 @@
 package com.itheima.reggie.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.itheima.reggie.dto.DishDto;
 import com.itheima.reggie.entity.Dish;
 
 /**
@@ -10,4 +11,8 @@ import com.itheima.reggie.entity.Dish;
  * @description:
  */
 public interface DishService extends IService<Dish> {
+    /**
+     * 新增菜品的同时保存对应的口味的数据
+     * */
+    void saveWithFlavor(DishDto dishDto);
 }
