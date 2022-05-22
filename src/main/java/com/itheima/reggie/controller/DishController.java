@@ -6,6 +6,7 @@ import com.itheima.reggie.common.R;
 import com.itheima.reggie.dto.DishDto;
 import com.itheima.reggie.entity.Category;
 import com.itheima.reggie.entity.Dish;
+import com.itheima.reggie.entity.DishFlavor;
 import com.itheima.reggie.service.CategoryService;
 import com.itheima.reggie.service.DishFlavorService;
 import com.itheima.reggie.service.DishService;
@@ -91,5 +92,33 @@ public class DishController {
 
         dishDtoPage.setRecords(dishDtoList);
         return R.success(dishDtoPage);
+    }
+
+    /**
+     * 根据菜品id查询菜品信息，包括口味
+     *
+     * @param id
+     * @return com.itheima.reggie.common.R<com.itheima.reggie.dto.DishDto>
+     **/
+    @GetMapping("/{id}")
+    public R<DishDto> getById(@PathVariable("id") Long id) {
+
+        DishDto dishDto = dishService.getByIdWithFlavor(id);
+        return R.success(dishDto);
+
+    }
+
+    /**
+     * 修改菜品信息,同时修改菜品对应菜品口味表数据
+     *
+     * @param dishDto
+     * @return com.itheima.reggie.common.R<java.lang.String>
+     **/
+    @PutMapping
+    public R<String> update(@RequestBody DishDto dishDto) {
+
+        dishService.updateWithFlavor(dishDto);
+
+        return R.success("菜品修改成功");
     }
 }
