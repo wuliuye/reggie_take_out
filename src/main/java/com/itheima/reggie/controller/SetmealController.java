@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @author : wly
  * @version : 1.0
@@ -47,5 +49,20 @@ public class SetmealController {
     public R<Page> page(int page, int pageSize, String name) {
         Page<SetmealDto> setmealDtoPage = setmealService.page(page, pageSize, name);
         return R.success(setmealDtoPage);
+    }
+
+    /**
+     * 删除套餐
+     *
+     * @param ids
+     * @return com.itheima.reggie.common.R<java.lang.String>
+     **/
+    @DeleteMapping
+    public R<String> delete(@RequestParam("ids") List<Long> ids) {
+        if (ids.size() > 0) {
+            setmealService.removeWithDish(ids);
+            return R.success("套餐删除成功");
+        }
+        return R.error("请勾选要删除的套餐");
     }
 }

@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.itheima.reggie.dto.SetmealDto;
 import com.itheima.reggie.entity.Setmeal;
 
+import java.util.List;
+
 /**
  * @author : wly
  * @version : 1.0
@@ -22,4 +24,9 @@ public interface SetmealService extends IService<Setmeal> {
      * 套餐分页查询
      * */
     Page<SetmealDto> page(int page, int pageSize, String name);
+
+    /**
+     * 删除套餐， 同时删除套餐与菜品的关联
+     * */
+    void removeWithDish(List<Long> ids);
 }
