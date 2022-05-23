@@ -73,12 +73,10 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
         //1.构造分页器
         Page<Setmeal> setmealPage = new Page<>(page, pageSize);
         Page<SetmealDto> setmealDtoPage = new Page<>();
-        //2.构造查询条件(套餐名，起售状态)
+        //2.构造查询条件(套餐名)
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
         //3.按照套餐名进行查询套餐列表(如果有输入套餐名)
         queryWrapper.like(StringUtils.isNotBlank(name), Setmeal::getName, name)
-                //套餐处于起售状态
-                .eq(Setmeal::getStatus, 1)
                 //按照更新时间降序排序
                 .orderByDesc(Setmeal::getUpdateTime);
         //4.查询
