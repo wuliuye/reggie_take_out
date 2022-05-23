@@ -61,7 +61,7 @@ public class DishController {
      * @return com.itheima.reggie.common.R<com.baomidou.mybatisplus.extension.plugins.pagination.Page>
      **/
     @GetMapping("/page")
-    public R<Page> list(int page, int pageSize, String name) {
+    public R<Page> page(int page, int pageSize, String name) {
         //构造分页构造器
         Page<Dish> dishPage = new Page<>(page, pageSize);
         Page<DishDto> dishDtoPage = new Page<>(page, pageSize);
@@ -120,5 +120,26 @@ public class DishController {
         dishService.updateWithFlavor(dishDto);
 
         return R.success("菜品修改成功");
+    }
+
+
+    /**
+     * 根据条件查询菜品列表
+     *
+     * @param dish
+     * @return com.itheima.reggie.common.R<java.util.List < com.itheima.reggie.entity.Dish>>
+     **/
+    @GetMapping("/list")
+    public R<List<Dish>> list(Dish dish) {
+
+        //根据分类id查询菜品列表
+        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(dish.getCategoryId() != null, Dish::getCategoryId, dish.getCategoryId())
+                //菜品处于起售状态
+                .eq(Dish::getStatus,1)
+                .orderByAsc(Dish::getSort)
+                .orderByDesc(Dish::getUpdateTime);
+        List<Dish> list = dishService.list(queryWrapper);
+        return R.success(list);
     }
 }

@@ -636,7 +636,8 @@
               false
             )
           },
-          // 获取套餐分类
+          // X 获取套餐分类
+          // 获取菜品分类列表
           getDishType () {
             getCategoryList({'type':1}).then(res => {
               if (res.code === 1) {
@@ -648,7 +649,8 @@
             })
           },
 
-          // 通过套餐ID获取菜品列表分类
+          // X 通过套餐ID获取菜品列表分类
+          // 通过菜品分类ID获取该分类下的菜品列表
           getDishList (id) {
             queryDishList({categoryId: id}).then(res => {
               if (res.code === 1) {
