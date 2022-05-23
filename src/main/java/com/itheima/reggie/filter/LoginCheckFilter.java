@@ -32,11 +32,18 @@ public class LoginCheckFilter implements Filter {
      * 定义不需要拦截的路径
      */
     private static final String[] URLS = new String[]{
+            //员工登录登出
             "/employee/login",
             "/employee/logout",
+            //静态资源
             "/backend/**",
             "/front/**",
-            "/common/**"
+            //文件上传下载
+            "/common/**",
+            //发送短信验证码
+            "/user/sendMsg",
+            //用户登录
+            "/user/login"
     };
 
     @Override
@@ -58,7 +65,7 @@ public class LoginCheckFilter implements Filter {
             return;
         }
 
-        //4.判断是否已经登录,如果已经登录就放行
+        //4-1.判断员工是否已经登录,如果已经登录就放行
         if (request.getSession().getAttribute("employee") != null) {
             log.info("员工已经登录，登录id为：{}", request.getSession().getAttribute("employee"));
             //将员工id设置进当前线程的Threadlocal
@@ -68,6 +75,15 @@ public class LoginCheckFilter implements Filter {
             return;
         }
 
+        //4-2.判断用户是否已经登录,如果已经登录就放行
+        if (request.getSession().getAttribute("user") != null) {
+            log.info("用户已经登录，登录id为：{}", request.getSession().getAttribute("user"));
+            //将用户id设置进当前线程的Threadlocal
+            Long userId = (Long)request.getSession().getAttribute("user");
+            BaseContext.setCurrentId(userId);
+            filterChain.doFilter(request, response);
+            return;
+        }
         //5.如果未登录则返回未登录结果,通过输出流向客户端响应数据
         log.info("员工未登录");
         response.getWriter().write(JSON.toJSONString(R.error("NOTLOGIN")));
