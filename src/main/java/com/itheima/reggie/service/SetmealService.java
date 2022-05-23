@@ -1,6 +1,7 @@
 package com.itheima.reggie.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.itheima.reggie.dto.SetmealDto;
 import com.itheima.reggie.entity.Setmeal;
 
 /**
@@ -10,4 +11,9 @@ import com.itheima.reggie.entity.Setmeal;
  * @description:
  */
 public interface SetmealService extends IService<Setmeal> {
+
+    /**
+     * 新增套餐，同时保存套餐与菜品的关联
+     * */
+    void saveWithDish(SetmealDto setmealDto);
 }
