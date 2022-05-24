@@ -2,13 +2,16 @@ package com.itheima.reggie.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.itheima.reggie.common.BaseContext;
 import com.itheima.reggie.common.CustomException;
+import com.itheima.reggie.dto.OrderDto;
 import com.itheima.reggie.entity.*;
 import com.itheima.reggie.mapper.OrderMapper;
 import com.itheima.reggie.service.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -119,5 +122,53 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         //7.删除用户购物车数据
         shoppingCartService.remove(queryWrapper);
 
+    }
+
+
+    /**
+     * 订单分页查询
+     *
+     * @param page
+     * @param pageSize
+     * @return java.util.List<com.itheima.reggie.dto.OrderDto>
+     **/
+    @Override
+    public Page<OrderDto> page(int page, int pageSize) {
+
+        Page<Orders> ordersPage = new Page<Orders>(page, pageSize);
+        Page<OrderDto> orderDtoPage = new Page<>();
+
+        //1.获取用户id
+        Long userId = BaseContext.getCurrentId();
+        //2.根据用户id查询用户订单
+        LambdaQueryWrapper<Orders> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Orders::getUserId, userId);
+        super.page(ordersPage, queryWrapper);
+        BeanUtils.copyProperties(ordersPage, orderDtoPage, "records");
+
+        //3.List<Orders> ----> List<OrderDto> 同时设置OrderDto的订单明细和菜品总数量
+        List<Orders> ordersList = ordersPage.getRecords();
+        List<OrderDto> orderDtoList = ordersList.stream().map(order -> {
+            OrderDto orderDto = new OrderDto();
+            BeanUtils.copyProperties(order, orderDto);
+
+            //3.1 获取订单号(订单号和订单id一样)
+            Long orderId = order.getId();
+            //3.2 根据订单号查询用户订单明细
+            LambdaQueryWrapper<OrderDetail> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(orderId != null, OrderDetail::getOrderId, orderId);
+            List<OrderDetail> orderDetailList = orderDetailService.list(wrapper);
+            //3.3 设置OrderDto的订单明细
+            orderDto.setOrderDetails(orderDetailList);
+
+            //3.4 设置OrderDto的菜品总数量
+            Integer sumNum = orderDetailList.stream().mapToInt(OrderDetail::getNumber).sum();
+            orderDto.setSumNum(sumNum);
+
+            return orderDto;
+        }).collect(Collectors.toList());
+
+        orderDtoPage.setRecords(orderDtoList);
+        return orderDtoPage;
     }
 }
