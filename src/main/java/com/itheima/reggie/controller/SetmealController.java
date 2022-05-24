@@ -1,8 +1,11 @@
 package com.itheima.reggie.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itheima.reggie.common.R;
 import com.itheima.reggie.dto.SetmealDto;
+import com.itheima.reggie.entity.Dish;
+import com.itheima.reggie.entity.Setmeal;
 import com.itheima.reggie.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,5 +67,24 @@ public class SetmealController {
             return R.success("套餐删除成功");
         }
         return R.error("请勾选要删除的套餐");
+    }
+
+    /**
+     * 根据套餐所属分类Id查询套餐列表
+     *
+     * @param setmeal
+     * @return com.itheima.reggie.common.R<java.util.List < com.itheima.reggie.entity.Setmeal>>
+     **/
+    @GetMapping("/list")
+    public R<List<Setmeal>> list(Setmeal setmeal) {
+
+        //根据分类id查询套餐列表
+        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(setmeal.getCategoryId() != null, Setmeal::getCategoryId, setmeal.getCategoryId())
+                //菜品处于起售状态
+                .eq(Setmeal::getStatus, setmeal.getStatus())
+                .orderByDesc(Setmeal::getUpdateTime);
+        List<Setmeal> list = setmealService.list(queryWrapper);
+        return R.success(list);
     }
 }
