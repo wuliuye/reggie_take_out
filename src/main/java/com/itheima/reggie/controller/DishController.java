@@ -130,9 +130,9 @@ public class DishController {
      * @return com.itheima.reggie.common.R<java.util.List < com.itheima.reggie.entity.Dish>>
      **/
     @GetMapping("/list")
-    public R<List<Dish>> list(Dish dish) {
+    public R<List<DishDto>> list(Dish dish) {
 
-        //根据分类id查询菜品列表
+        //1.根据分类id查询菜品列表
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(dish.getCategoryId() != null, Dish::getCategoryId, dish.getCategoryId())
                 //菜品处于起售状态
@@ -140,6 +140,30 @@ public class DishController {
                 .orderByAsc(Dish::getSort)
                 .orderByDesc(Dish::getUpdateTime);
         List<Dish> list = dishService.list(queryWrapper);
-        return R.success(list);
+
+        //2.List<Dish> --转--> List<DishDto> 同时设置DishDto的菜品口味数据(flavors)
+        List<DishDto> dishDtoList = list.stream().map(item -> {
+            DishDto dishDto = new DishDto();
+            BeanUtils.copyProperties(item, dishDto);
+
+            //根据菜品分类Id设置菜品分类名(可不设置)
+            Category category = categoryService.getById(item.getCategoryId());
+            if (category != null) {
+                dishDto.setCategoryName(category.getName());
+            }
+
+            //3.设置DishDto的菜品口味数据
+
+            //根据菜品id去菜品口味数据表查询菜品口味
+            Long dishId = item.getId();
+            LambdaQueryWrapper<DishFlavor> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(DishFlavor::getDishId,dishId);
+            List<DishFlavor> dishFlavorList = dishFlavorService.list(wrapper);
+            //设置菜品口味
+            dishDto.setFlavors(dishFlavorList);
+            return dishDto;
+
+        }).collect(Collectors.toList());
+        return R.success(dishDtoList);
     }
 }
