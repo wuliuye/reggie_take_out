@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author : wly
@@ -35,6 +37,8 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 发送短信验证码
@@ -56,7 +60,9 @@ public class UserController {
             //SMSUtils.sendMessage(aliyunSmsParamConfig.getAccessKeyId(), aliyunSmsParamConfig.getSecret(),
             //        aliyunSmsParamConfig.getSignName(), aliyunSmsParamConfig.getTemplateCode(), phone, code);
             //将生成的验证码保存到session中（key为手机号，value为验证码）
-            request.getSession().setAttribute(phone, code);
+            //request.getSession().setAttribute(phone, code);
+            //将生成的验证码保存到redis中（key为手机号，value为验证码）,设置1分钟有效期
+            redisTemplate.opsForValue().set(phone,code,1, TimeUnit.MINUTES);
             return R.success("发送验证码成功");
         }
         return R.error("发送验证码失败");
@@ -77,7 +83,9 @@ public class UserController {
         String code = map.get("code").toString();
 
         //根据用户输入的手机号去session中查询验证码
-        Object sessionCode = request.getSession().getAttribute(phone);
+        //Object sessionCode = request.getSession().getAttribute(phone);
+        //根据用户输入的手机号去redis中查询验证码
+        Object sessionCode = redisTemplate.opsForValue().get(phone);
 
         //匹配验证码
         if (sessionCode != null && code.equals(sessionCode.toString())) {
@@ -96,6 +104,8 @@ public class UserController {
             //将用户id设置进session中
             request.getSession().setAttribute("user", user.getId());
 
+            //如果用户登录成功，删除redis中的key
+            redisTemplate.delete(phone);
             //登录成功
             return R.success(user);
         }
