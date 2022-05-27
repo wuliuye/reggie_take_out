@@ -43,7 +43,11 @@ public class LoginCheckFilter implements Filter {
             //发送短信验证码
             "/user/sendMsg",
             //用户登录
-            "/user/login"
+            "/user/login",
+            "/doc.html",
+            "/webjars/**",
+            "/swagger-resources",
+            "/v2/api-docs"
     };
 
     @Override
